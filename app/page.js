@@ -38,6 +38,13 @@ const LLMallard = () => {
     }, 15000);
   };
 
+  const pickChatStyle = (message) => {
+    if (message.type === 'user') {
+      return styles.userMessage;
+    }
+      return styles.botMessage;
+  }
+
   return (
       <div className={styles.container}>
         <header className={styles.header}>
@@ -49,7 +56,7 @@ const LLMallard = () => {
           <div className={styles.chatContainer}>
             <div className={styles.conversation}>
               {chatHistory.map((message, index) => (
-                  <div key={index} className={message.type === 'user' ? styles.message.userMessage : styles.message.botMessage}>
+                  <div key={index} className={pickChatStyle(message)}>
                     {message.content}
                   </div>
               ))}

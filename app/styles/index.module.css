@@ -39,24 +39,34 @@
 .conversation {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
 }
 
 .message {
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    max-width: 80%; /* Limit message width */
-    word-wrap: break-word; /* Handle long messages */
-}
-
-.message.userMessage {
     background-color: #212121;
-    align-self: flex-end;  /* Align to right */
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.message.botMessage {
-    background-color: #303030;
-    align-self: flex-start; /* Align to left */
+.userMessage {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.botMessage {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    text-align: right;
 }
 
 .bottomBar {
@@ -111,10 +121,8 @@
 }
 
 .thinkingIconContainer {
-    /*position: fixed; !* Keeps it in view, even when scrolling *!*/
     top: 50%;
     left: 50%;
-    /*transform: translate(-50%, -50%); !* Centers it *!*/
     z-index: 1000; /* Ensure it's on top */
     display: flex;
     justify-content: center;
