@@ -5,7 +5,7 @@ import styles from './styles/index.module.css'; // Create this CSS module file
 
 const LLMallard = () => {
   const [userInput, setUserInput] = useState('');
-  const [response, setResponse] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (event) => {
@@ -15,9 +15,11 @@ const LLMallard = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    setResponse(''); // Clear the previous response
 
-    // Simulate "thinking" time
+    const newUserInput = userInput;
+    setChatHistory(prevHistory => [...prevHistory, { type: 'user', content: newUserInput }]);
+    setUserInput('');
+
     setTimeout(() => {
       // Generate a random duck response
       const duckResponses = [
@@ -31,30 +33,26 @@ const LLMallard = () => {
       const randomIndex = Math.floor(Math.random() * duckResponses.length);
       const randomResponse = duckResponses[randomIndex];
 
-      setResponse(randomResponse);
+      setChatHistory(prevHistory => [...prevHistory, { type: 'bot', content: randomResponse }]);
       setIsLoading(false);
-    }, 1500); // 1.5 seconds "thinking" time
+    }, 1500);
   };
 
   return (
       <div className={styles.container}>
         <header className={styles.header}>
-          <h1 >LLMallard</h1>
+          <h1>LLMallard</h1>
           <p>The surprisingly helpful rubber duck.</p>
         </header>
 
         <main className={styles.main}>
           <div className={styles.chatContainer}>
             <div className={styles.conversation}>
-              {/* Display User Input */}
-              {userInput && <div className={styles.message.userMessage}>{userInput}</div>}
-
-              {/* Display Responses */}
-              {response ? (
-                  <div className={styles.message.botMessage}>{isLoading ? '...' : response}</div>
-              ) : (
-                  isLoading && <div className={styles.message.botMessage}>...</div>
-              )}
+              {chatHistory.map((message, index) => (
+                  <div key={index} className={message.type === 'user' ? styles.message.userMessage : styles.message.botMessage}>
+                    {message.content}
+                  </div>
+              ))}
             </div>
           </div>
         </main>
