@@ -35,7 +35,7 @@ const LLMallard = () => {
 
       setChatHistory(prevHistory => [...prevHistory, { type: 'bot', content: randomResponse }]);
       setIsLoading(false);
-    }, 1500);
+    }, 150000);
   };
 
   return (
@@ -73,6 +73,18 @@ const LLMallard = () => {
             </form>
           </div>
         </div>
+
+        {isLoading && (
+            <div className={`${styles.thinkingIconContainer} active`}>
+              <div className={styles.spinner}>
+                <div className="dot1"></div>
+                <div className="dot2"></div>
+                <div className="dot3"></div>
+                <div className="dot4"></div>
+                <div className="dot5"></div>
+              </div>
+            </div>
+        )}
       </div>
   );
 };
