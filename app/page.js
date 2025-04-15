@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import styles from './styles/index.module.css'; // Create this CSS module file
+import { Typewriter } from 'nextjs-simple-typewriter'
 
 const LLMallard = () => {
   const [userInput, setUserInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [mostRecentBotMessage, setMostRecentBotMessage] = useState(null);
+
 
   const handleInputChange = (event) => {
     setUserInput(event.target.value);
@@ -17,8 +20,10 @@ const LLMallard = () => {
     setIsLoading(true);
 
     const newUserInput = userInput;
+    setChatHistory(prevHistory => [...prevHistory, { type: 'bot', content: mostRecentBotMessage }]);
     setChatHistory(prevHistory => [...prevHistory, { type: 'user', content: newUserInput }]);
     setUserInput('');
+    setMostRecentBotMessage('');
 
     setTimeout(() => {
       // Generate a random duck response
@@ -33,9 +38,12 @@ const LLMallard = () => {
       const randomIndex = Math.floor(Math.random() * duckResponses.length);
       const randomResponse = duckResponses[randomIndex];
 
-      setChatHistory(prevHistory => [...prevHistory, { type: 'bot', content: randomResponse }]);
+
+      setMostRecentBotMessage(randomResponse);
+
+      // setChatHistory(prevHistory => [...prevHistory, { type: 'bot', content: randomResponse }]);
       setIsLoading(false);
-    }, 15000);
+    }, 5000);
   };
 
   const pickChatStyle = (message) => {
@@ -64,6 +72,18 @@ const LLMallard = () => {
               {isLoading && (
                   <div className={`${styles.thinkingIconContainer}`}/>
               )}
+
+              {!isLoading && mostRecentBotMessage && (
+                    <div className={styles.botMessage}>
+                        <Typewriter
+                            words={[mostRecentBotMessage]}
+                            loop={1}
+                            cursor={false}
+                            typeSpeed={50}
+                            delaySpeed={1000}
+                        />
+                    </div>
+                )}
             </div>
           </div>
         </main>
