@@ -59,14 +59,19 @@
 .messageBubble {
     padding: 10px 15px;
     border-radius: 15px;
-    max-width: 75%; /* Prevent messages from being too wide */
-    word-wrap: break-word; /* Wrap long words */
+    max-width: 75%;
+    word-wrap: break-word; /* Keep this for breaking long words */
+    overflow-wrap: break-word; /* Modern equivalent of word-wrap */
     box-sizing: border-box;
+    line-height: 1.4; /* Added previously, good for readability */
+
+    /* --- Add this line to preserve formatting --- */
+    white-space: pre-wrap; /* Preserves whitespace/newlines, wraps text */
 }
 
 .userMessage {
-    background-color: #007bff; /* Example user color */
-    color: white;
+    background-color: #FFDA61; /* Example user color */
+    color: black;
     border-bottom-right-radius: 5px; /* Style user bubble */
     align-self: flex-end; /* Align user messages to the right */
     text-align: right; /* Align text inside */
