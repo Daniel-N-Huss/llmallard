@@ -1,142 +1,167 @@
+/* --- Overall Layout --- */
 .container {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Or another modern font */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
-    color: #eee; /* Light grey for text */
-    min-height: 100vh; /* Full viewport height */
+    color: #eee;
+    height: 100vh; /* Full viewport height */
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Prevent body scroll */
 }
 
+/* --- Fixed Header --- */
 .header {
     background-color: #181818;
-    padding: 20px;
+    padding: 15px 20px; /* Adjust padding as needed */
     text-align: center;
     border-bottom: 1px solid #333;
+    width: 100%;
+    position: fixed; /* Fix to top */
+    top: 0;
+    left: 0;
+    z-index: 10; /* Ensure header is above scrolling content */
+    box-sizing: border-box; /* Include padding/border in width */
+    /* Estimate or calculate header height here if needed for padding */
+    /* Example: height: 80px; */
 }
 
 .header h1 {
-    font-size: 2.5em;
-    margin-bottom: 5px;
-    color: #FFDA61;  /* Rubber Duck Yellow */
+    font-size: 2em; /* Slightly smaller */
+    margin: 0 0 5px 0; /* Adjust margins */
+    color: #FFDA61;
 }
 
 .header p {
-    font-size: 1.1em;
+    font-size: 1em; /* Slightly smaller */
+    margin: 0;
     color: #ccc;
 }
 
+/* --- Scrollable Main Content --- */
 .main {
-    flex: 1; /* Takes up remaining space */
-    padding: 20px;
+    flex: 1; /* Takes up all available space between header and footer */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-top: 91px; /* MUST be >= header height */
+    padding-bottom: 106px; /* MUST be >= footer height */
+    padding-left: 20px; /* Side padding */
+    padding-right: 20px; /* Side padding */
+    box-sizing: border-box;
 }
 
-.chatContainer {
-    height: calc(100% - 100px); /*  Account for bottom bar */
-    overflow-y: auto; /* Scrollable content */
-    padding-bottom: 20px;
-}
-
+/* --- Conversation Area --- */
 .conversation {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    padding: 10px;
+    gap: 10px; /* Spacing between messages */
 }
 
-.message {
-    background-color: #212121;
-    border: 1px solid #444;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    width: 100%;
+/* --- Message Bubbles --- */
+.messageBubble {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 75%; /* Prevent messages from being too wide */
+    word-wrap: break-word; /* Wrap long words */
     box-sizing: border-box;
 }
 
 .userMessage {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    box-sizing: border-box;
-    text-align: left;
+    background-color: #007bff; /* Example user color */
+    color: white;
+    border-bottom-right-radius: 5px; /* Style user bubble */
+    align-self: flex-end; /* Align user messages to the right */
+    text-align: right; /* Align text inside */
 }
 
 .botMessage {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    box-sizing: border-box;
-    text-align: right;
+    background-color: #333; /* Example bot color */
+    color: #eee;
+    border-bottom-left-radius: 5px; /* Style bot bubble */
+    align-self: flex-start; /* Align bot messages to the left */
+    text-align: left; /* Align text inside */
+    min-height: 40px; /* Ensure bubble has some height for typewriter/spinner */
+    display: flex; /* Helps center spinner vertically */
+    align-items: center; /* Helps center spinner vertically */
 }
 
+
+/* --- Fixed Footer (Input Bar) --- */
 .bottomBar {
     background-color: #181818;
-    padding: 10px;
-    text-align: center;
+    padding: 15px 20px; /* Adjust padding */
     border-top: 1px solid #333;
+    position: fixed; /* Fix to bottom */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10; /* Ensure footer is above scrolling content */
+    box-sizing: border-box; /* Include padding/border in width */
+    /* Estimate or calculate footer height here if needed for padding */
+    /* Example: height: 70px; */
 }
 
-.userBox {
+.inputForm {
     display: flex;
-    flex-direction: column;
-    align-items: stretch; /* Stretch input and button */
+    gap: 10px; /* Space between input and button */
+    align-items: center;
 }
 
 .inputField {
-    padding: 12px;
+    flex-grow: 1; /* Input takes available space */
+    padding: 12px 18px;
     border: none;
     border-radius: 20px;
     background-color: #2b2b2b;
     color: #eee;
-    width: 100%; /* Fill container */
     font-size: 1em;
 }
 
 .inputField:focus {
     outline: none;
-    border: 1px solid #FFDA61; /* Slight highlight on focus */
+    box-shadow: 0 0 0 2px #FFDA61; /* Highlight on focus */
+}
+
+.inputField:disabled {
+    opacity: 0.7;
 }
 
 .sendButton {
     background-color: #FFDA61;
     color: #121212;
     border: none;
-    padding: 12px 25px;
+    padding: 12px 20px; /* Adjust padding */
     border-radius: 20px;
     cursor: pointer;
     font-size: 1em;
-    margin-top: 10px;
+    font-weight: bold;
+    white-space: nowrap; /* Prevent button text wrapping */
 }
 
-.sendButton:hover {
+.sendButton:hover:not(:disabled) {
     background-color: #e0c787;
 }
 
-/* Loading state indicator */
-.isLoading {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 0.9em;
-    color: #ccc;
+.sendButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
+/* --- Loading Indicator --- */
 .thinkingIconContainer {
-    top: 50%;
-    left: 50%;
-    z-index: 1000; /* Ensure it's on top */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    align-self: end;
+    /* Styles moved from component file to CSS module */
+    /* Centered within its container (.botMessage) by flex properties */
     opacity: 1;
-    width: 30px;
+    width: 25px; /* Smaller size */
     aspect-ratio: 1;
     border-radius: 50%;
     padding: 3px;
     background:
-            radial-gradient(farthest-side,#FFDA61 95%,#0000) 50% 0/12px 12px no-repeat,
-            radial-gradient(farthest-side,#0000 calc(100% - 5px),#FFDA61 calc(100% - 4px)) content-box;
-    animation: l6 2s infinite ;
+            radial-gradient(farthest-side, #FFDA61 95%, #0000) 50% 0/8px 8px no-repeat, /* Adjusted size */
+            radial-gradient(farthest-side, #0000 calc(100% - 4px), #FFDA61 calc(100% - 3px)) content-box; /* Adjusted size */
+    animation: l6 1.5s infinite linear; /* Adjusted speed */
 }
 
-@keyframes l6 {to{transform: rotate(1turn)}}
+@keyframes l6 {
+    to {
+        transform: rotate(1turn);
+    }
+}
