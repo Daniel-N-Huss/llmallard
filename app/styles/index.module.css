@@ -41,7 +41,7 @@
 .main {
     flex: 1; /* Takes up all available space between header and footer */
     overflow-y: auto; /* Enable vertical scrolling */
-    padding-top: 91px; /* MUST be >= header height */
+    padding-top: 120px; /* MUST be >= header height */
     padding-bottom: 106px; /* MUST be >= footer height */
     padding-left: 20px; /* Side padding */
     padding-right: 20px; /* Side padding */
