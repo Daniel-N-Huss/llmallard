@@ -4,10 +4,10 @@ import { useState, useRef, useEffect } from 'react';
 import styles from './styles/index.module.css';
 import { Typewriter } from 'nextjs-simple-typewriter';
 
-// --- Configuration for Proportional Delay ---
-const BASE_DELAY_MS = 500;       // Minimum thinking time
-const DELAY_PER_CHAR_MS = 30;   // Extra ms per character of user input
-const MAX_DELAY_MS = 15000;      // Maximum thinking time
+// Configuration for Proportional Delay
+const BASE_DELAY_MS = 500;
+const DELAY_PER_CHAR_MS = 30;
+const MAX_DELAY_MS = 15000;
 
 const LLMallard = () => {
   const [userInput, setUserInput] = useState('');
@@ -17,69 +17,106 @@ const LLMallard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [mostRecentBotMessage, setMostRecentBotMessage] = useState(null);
   const scrollableContainerRef = useRef(null);
-  const inputRef = useRef(null); // <-- Add ref for the input field
+  const inputRef = useRef(null); // Ref now points to the textarea
 
-  // Effect to scroll to bottom
+  // --- Scroll Effect ---
   useEffect(() => {
     if (scrollableContainerRef.current) {
-      setTimeout(() => {
-        scrollableContainerRef.current.scrollTop = scrollableContainerRef.current.scrollHeight;
+      // Scroll down when history changes OR when a new bot message appears
+      // Adding a small delay can sometimes help ensure layout is stable before scrolling
+      const timer = setTimeout(() => {
+        if(scrollableContainerRef.current) { // Check ref again inside timeout
+          scrollableContainerRef.current.scrollTop = scrollableContainerRef.current.scrollHeight;
+        }
       }, 50);
+      return () => clearTimeout(timer); // Cleanup timer on unmount/re-run
     }
-  }, [chatHistory, mostRecentBotMessage]);
+  }, [chatHistory, mostRecentBotMessage]); // Trigger scroll on these changes
 
-  // --- Automatically focus input when component mounts (optional) ---
+  // --- Focus on Mount ---
   useEffect(() => {
     inputRef.current?.focus();
-  }, [isLoading]);
+  }, [chatHistory, isLoading]);
+
+  // --- Auto-Resize Logic (JS Fallback/Alternative for field-sizing) ---
+  // This effect runs when userInput changes to adjust height manually
+  // You might only need this if `field-sizing: content` isn't supported or sufficient
+  // /*
+  useEffect(() => {
+    if (inputRef.current) {
+      const el = inputRef.current;
+      el.style.height = 'auto'; // Temporarily shrink to recalculate scrollHeight
+      // Set height based on content scroll height, respecting CSS max-height
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  }, [userInput]); // Re-run when input changes
+  // */
+
 
   const handleInputChange = (event) => {
     setUserInput(event.target.value);
+    // Note: If NOT using field-sizing, JS height adjustment logic could go here
+    // or stay in the dedicated useEffect above.
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const trimmedInput = userInput.trim(); // Use trimmed input for logic
-    if (!trimmedInput) return;
+  // --- Submit Handler ---
+  const performSubmit = () => { // Extracted submit logic
+    const trimmedInput = userInput.trim();
+    if (!trimmedInput || isLoading) return; // Prevent submit if empty or loading
 
     setIsLoading(true);
-    const newUserMessage = { type: 'user', content: trimmedInput }; // Use trimmed input here too
+    const newUserMessage = { type: 'user', content: trimmedInput };
     setChatHistory(prevHistory => [...prevHistory, newUserMessage]);
-    setUserInput(''); // Clear input field visually
+    setUserInput(''); // Clear input field
     setMostRecentBotMessage('');
 
-    // --- Calculate dynamic delay ---
-    const calculatedDelay = BASE_DELAY_MS + trimmedInput.length * DELAY_PER_CHAR_MS;
-    const dynamicDelay = Math.min(calculatedDelay, MAX_DELAY_MS); // Ensure delay doesn't exceed max
+    // Reset textarea height after submit if using JS method
+    // This might be needed if you don't use field-sizing
+    // /*
+    if (inputRef.current) {
+        inputRef.current.style.height = 'auto'; // Reset to minimum height
+    }
+    // */
 
-    // --- Simulate API call/bot thinking with dynamic delay ---
+
+    const calculatedDelay = BASE_DELAY_MS + trimmedInput.length * DELAY_PER_CHAR_MS;
+    const dynamicDelay = Math.min(calculatedDelay, MAX_DELAY_MS);
+
     setTimeout(() => {
-      const duckResponses = [
-        'Quack!',
-        'Quack quack!',
-        'Quack? Are you sure?',
-        'Quack! That\'s a fine question.',
-        'Quack... I ponder.',
-        'Quack. My thoughts are murky.'
-      ];
+      // Ensure component hasn't unmounted if request is very long
+      if (!inputRef.current) return;
+
+      const duckResponses = [ 'Quack!', 'Quack quack!', 'Quack? Are you sure?', 'Quack! That\'s a fine question.', 'Quack... I ponder.', 'Quack. My thoughts are murky.' ];
       const randomIndex = Math.floor(Math.random() * duckResponses.length);
       const randomResponse = duckResponses[randomIndex];
 
       setMostRecentBotMessage(randomResponse);
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
+      inputRef.current?.focus();
 
-      // --- Focus the input field AFTER loading stops ---
-      inputRef.current?.focus(); // Optional chaining just in case
+    }, dynamicDelay);
+  }
 
-    }, dynamicDelay); // <-- Use the calculated dynamic delay
+  // --- Enter Key Handler ---
+  const handleKeyDown = (event) => {
+    // Check if Enter is pressed WITHOUT the Shift key
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Prevent default behavior (newline)
+      performSubmit(); // Call the extracted submit logic
+    }
+    // Pressing Enter + Shift will allow default behavior (new line)
   };
 
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent default form submission
+    performSubmit();
+  };
+
+  // --- Bot Message Typed Handler ---
   const handleBotMessageTyped = (messageContent) => {
     setChatHistory(prevHistory => [...prevHistory, { type: 'bot', content: messageContent }]);
     setMostRecentBotMessage(null);
-    // Optional: You could also re-focus the input *after* typing is done,
-    // but focusing when loading finishes is usually preferred.
-    // inputRef.current?.focus();
   };
 
   const pickChatStyle = (message) => {
@@ -122,18 +159,27 @@ const LLMallard = () => {
           </div>
         </main>
 
+        {/* Footer now adapts height */}
         <footer className={styles.bottomBar}>
+          {/* Form element is still useful for semantics and Enter key submit fallback */}
           <form className={styles.inputForm} onSubmit={handleSubmit}>
-            <input
-                ref={inputRef} // <-- Attach the ref here
-                type="text"
-                value={userInput}
-                onChange={handleInputChange}
-                placeholder="Ask me a question..."
-                className={styles.inputField}
-                disabled={isLoading}
-            />
-            <button type="submit" className={styles.sendButton} disabled={isLoading}>
+          <textarea
+              ref={inputRef} // Attach ref to textarea
+              value={userInput}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown} // Add keydown listener
+              placeholder="Ask me a question..."
+              className={styles.inputField} // Use the same class name
+              disabled={isLoading}
+              rows={1} // Start with one row visually
+              aria-label="Chat input" // Accessibility
+          />
+            <button
+                type="submit" // Button type remains submit
+                className={styles.sendButton}
+                disabled={isLoading || !userInput.trim()} // Disable if loading or input empty
+                aria-label="Send message" // Accessibility
+            >
               Send
             </button>
           </form>

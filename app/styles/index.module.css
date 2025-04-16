@@ -84,56 +84,86 @@
 }
 
 
-/* --- Fixed Footer (Input Bar) --- */
+/* --- Footer --- */
 .bottomBar {
     background-color: #181818;
-    padding: 15px 20px; /* Adjust padding */
+    padding: 10px 15px; /* Reduced vertical padding slightly */
     border-top: 1px solid #333;
-    position: fixed; /* Fix to bottom */
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    z-index: 10; /* Ensure footer is above scrolling content */
-    box-sizing: border-box; /* Include padding/border in width */
-    /* Estimate or calculate footer height here if needed for padding */
-    /* Example: height: 70px; */
+    z-index: 10;
+    box-sizing: border-box;
+    /* NO fixed height - let it grow with content */
+    display: flex; /* Use flex to align items */
 }
 
 .inputForm {
     display: flex;
-    gap: 10px; /* Space between input and button */
-    align-items: center;
+    gap: 10px;
+    align-items: flex-end; /* Align items to bottom (button stays aligned when textarea grows) */
+    width: 100%; /* Take full width */
 }
 
+/* --- Input Field (now Textarea) --- */
 .inputField {
-    flex-grow: 1; /* Input takes available space */
-    padding: 12px 18px;
+    /* --- Core Styling (Keep from previous input) --- */
+    flex-grow: 1;
+    padding: 10px 15px; /* Adjusted padding slightly */
     border: none;
-    border-radius: 20px;
+    border-radius: 18px; /* Slightly adjusted radius */
     background-color: #2b2b2b;
     color: #eee;
     font-size: 1em;
+    font-family: inherit; /* Inherit font from body/container */
+    box-sizing: border-box;
+
+    /* --- Textarea Specific Styling --- */
+    resize: none; /* Disable manual resizing handle */
+    overflow-y: auto; /* Show scrollbar only if max-height is reached */
+    line-height: 1.4; /* Adjust line height for readability */
+
+    /* --- Auto-Height --- */
+    /* Method 1: Modern CSS (Preferred) */
+    field-sizing: content; /* <<< The magic CSS property */
+    /* Define min/max heights */
+    min-height: 42px; /* Calculate based on 1 row + padding (e.g., 10+10 padding + ~22 line-height) */
+    max-height: 150px; /* Limit growth (e.g., ~5-6 rows) */
+
+    /* Method 2: JS Fallback (Enable the JS useEffect if using this) */
+    /* If using JS, you might set overflow: hidden; */
+    /* overflow: hidden; */
+    /* JS will set the height directly */
 }
 
 .inputField:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #FFDA61; /* Highlight on focus */
+    box-shadow: 0 0 0 2px #FFDA61;
 }
 
 .inputField:disabled {
     opacity: 0.7;
+    background-color: #404040; /* Darker when disabled */
 }
 
+/* --- Send Button --- */
 .sendButton {
     background-color: #FFDA61;
     color: #121212;
     border: none;
-    padding: 12px 20px; /* Adjust padding */
-    border-radius: 20px;
+    padding: 0 18px; /* Adjust padding */
+    /* Align button height to initial textarea height */
+    height: 42px; /* Match the min-height of the textarea */
+    border-radius: 18px; /* Match textarea radius */
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
-    white-space: nowrap; /* Prevent button text wrapping */
+    white-space: nowrap;
+    /* Prevent button from shrinking */
+    flex-shrink: 0;
+    /* Align self might not be needed if parent uses align-items: flex-end */
+    /* align-self: flex-end; */ /* Aligns button to bottom if textarea grows */
 }
 
 .sendButton:hover:not(:disabled) {
